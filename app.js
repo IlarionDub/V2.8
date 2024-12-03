@@ -678,7 +678,9 @@ async function login(event) {
     const email = document.getElementById("loginEmail").value;
     const password = document.getElementById("loginPassword").value;
 
-       
+    const user = users.find(user => user.email === email && user.password === password) ||
+
+    users1.find(user => user.email === email && user.password === password);
 
     if (!user) {
         alert("Invalid email or password!");
