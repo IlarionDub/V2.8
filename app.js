@@ -721,11 +721,8 @@ function updateUserUI() {
         loggedInUserSpan?.classList.remove("hidden");
 
         // Умови для різних типів входу
-        if (loggedInUser.authMethod === "google") {
             loggedInUserSpan.innerText = `Google: ${loggedInUser.name}`;
-        } else {
-            loggedInUserSpan.innerText = `Logged in as: ${loggedInUser}`;
-        }
+        
     } else {
         loginButton?.classList.remove("hidden");
         logoutButton?.classList.add("hidden");
