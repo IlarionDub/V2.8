@@ -55,6 +55,7 @@ async function handleCredentialResponse(response) {
     loggedInUser = {
         name: data.name,
         email: data.email,
+        authMethod: "google", // Або "manual"
     };
 
     console.log("Logged in as:", loggedInUser.name);
@@ -719,7 +720,12 @@ function updateUserUI() {
         logoutButton?.classList.remove("hidden");
         loggedInUserSpan?.classList.remove("hidden");
 
-        loggedInUserSpan.innerText = `Logged in as: ${loggedInUser}`;
+        // Умови для різних типів входу
+        if (loggedInUser.authMethod === "google") {
+            loggedInUserSpan.innerText = `Google: ${loggedInUser.name}`;
+        } else {
+            loggedInUserSpan.innerText = `Logged in as: ${loggedInUser}`;
+        }
     } else {
         loginButton?.classList.remove("hidden");
         logoutButton?.classList.add("hidden");
