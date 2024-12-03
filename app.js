@@ -52,11 +52,9 @@ async function handleCredentialResponse(response) {
 
 
 
-    loggedInUser = {
-        name: data.name,
-        email: data.email,
-        authMethod: "google", // Або "manual"
-    };
+    loggedInUser = name: data.name;
+ 
+    
 
     console.log("Logged in as:", loggedInUser.name);
     document.getElementById("loggedInUser").innerText = `${loggedInUser.name}`;
@@ -721,7 +719,7 @@ function updateUserUI() {
         loggedInUserSpan?.classList.remove("hidden");
 
         // Умови для різних типів входу
-            loggedInUserSpan.innerText = `Google: ${loggedInUser.name}`;
+            loggedInUserSpan.innerText = `Google: ${loggedInUser}`;
         
     } else {
         loginButton?.classList.remove("hidden");
