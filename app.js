@@ -1,14 +1,15 @@
 let posts = [];
 let users = [];
 let currentPostIndex = 0;
-let loggedInUser = null; 
+let loggedInUser = null;
 const BASE_URL = 'http://localhost:3000';
 
- 
+
 
 let users1 = JSON.parse(localStorage.getItem("users1")) || [
     { name: "Admin", email: "admin@gmail.com", password: "Admin123", role: "admin" }
 ];
+
 
 // Завантаження даних із сервера під час ініціалізації
 document.addEventListener("DOMContentLoaded", async () => {
@@ -52,12 +53,10 @@ async function handleCredentialResponse(response) {
 
 
     loggedInUser = {
-      name: data.name, 
+      name: data.name,
         gmail: data.gmail,
     };
 
- 
-    
 
     console.log("Logged in as:", loggedInUser.name);
     document.getElementById("loggedInUser").innerText = `${loggedInUser.name}`;
@@ -100,7 +99,7 @@ async function syncToServer(dataType, dataArray) {
                     );
                 }
                 return false;
-                
+
             });
 
             if (existingItem) {
@@ -720,10 +719,8 @@ function updateUserUI() {
         loginButton?.classList.add("hidden");
         logoutButton?.classList.remove("hidden");
         loggedInUserSpan?.classList.remove("hidden");
+        loggedInUserSpan.innerText = `Logged in as: ${loggedInUser}`;
 
-        // Умови для різних типів входу
-            loggedInUserSpan.innerText = `Google: ${loggedInUser}`;
-        
     } else {
         loginButton?.classList.remove("hidden");
         logoutButton?.classList.add("hidden");
