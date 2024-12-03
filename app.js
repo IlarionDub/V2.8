@@ -52,7 +52,11 @@ async function handleCredentialResponse(response) {
 
 
 
-    loggedInUser = name: data.name;
+    loggedInUser = {
+      name: data.name, 
+        gmail: data.gmail,
+    };
+
  
     
 
