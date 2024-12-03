@@ -50,9 +50,8 @@ async function handleCredentialResponse(response) {
         name: data.name,
         email: data.email,
     };
-
     console.log("Logged in as:", loggedInUser.name);
-    document.getElementById("loggedInUser").innerText = `,${loggedInUser.name}`;
+    document.getElementById("loggedInUser").innerText = `${loggedInUser.name}`;
 }
 
 function prefillAuthor() {
