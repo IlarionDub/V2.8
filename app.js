@@ -43,7 +43,6 @@ async function addOrUpdateData(dataType, newData) {
     await syncToServer(dataType, [newData]);
 }
 async function handleCredentialResponse(response) {
-    prefillAuthor();
     const data = jwt_decode(response.credential); // Розшифровка JWT
     console.log("Decoded JWT data:", data);
 
@@ -53,7 +52,6 @@ async function handleCredentialResponse(response) {
         name: data.name,
         email: data.email,
     };
-    await addOrUpdateData('users', loggedInUser);
 
     console.log("Logged in as:", loggedInUser.name);
     document.getElementById("loggedInUser").innerText = `${loggedInUser.name}`;
