@@ -51,18 +51,6 @@ async function handleCredentialResponse(response) {
         email: data.email,
     };
 
-
-
-
-
-
-
-    await saveToLocalStorage();
-    loadPosts();
-    updateUserUI();
-
-
-
     console.log("Logged in as:", loggedInUser.name);
     document.getElementById("loggedInUser").innerText = `,${loggedInUser.name}`;
 }
