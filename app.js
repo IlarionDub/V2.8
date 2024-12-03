@@ -4,10 +4,12 @@ let currentPostIndex = 0;
 let loggedInUser = null;
 const BASE_URL = 'http://localhost:3000';
 
+
+
 let users1 = JSON.parse(localStorage.getItem("users1")) || [
     { name: "Admin", email: "admin@gmail.com", password: "Admin123", role: "admin" }
 ];
- 
+
 
 // Завантаження даних із сервера під час ініціалізації
 document.addEventListener("DOMContentLoaded", async () => {
@@ -41,13 +43,15 @@ async function addOrUpdateData(dataType, newData) {
 
     // Синхронізуємо із сервером
     await syncToServer(dataType, [newData]);
+    updateUserUI();
+
 }
 async function handleCredentialResponse(response) {
     const data = jwt_decode(response.credential); // Розшифровка JWT
     console.log("Decoded JWT data:", data);
 
-    
-    
+
+
     loggedInUser = {
         name: data.name,
         email: data.email,
@@ -55,6 +59,7 @@ async function handleCredentialResponse(response) {
 
     console.log("Logged in as:", loggedInUser.name);
     document.getElementById("loggedInUser").innerText = `${loggedInUser.name}`;
+    updateUserUI();
 }
 
 function prefillAuthor() {
@@ -62,6 +67,8 @@ function prefillAuthor() {
     if (loggedInUser && authorField) {
         authorField.value = loggedInUser.name;
     }
+    updateUserUI();
+
 }
 
 
@@ -91,6 +98,7 @@ async function syncToServer(dataType, dataArray) {
                     );
                 }
                 return false;
+                
             });
 
             if (existingItem) {
@@ -120,6 +128,7 @@ async function syncToServer(dataType, dataArray) {
         // Якщо сервер недоступний, лише оновлюємо локальне сховище
         localStorage.setItem(dataType, JSON.stringify(dataArray));
     }
+    updateUserUI();
 }
 
 
@@ -187,6 +196,7 @@ async function handleRouteChange() {
         default:
             console.warn('Unknown route:', hash);
             loadHomePage();
+            updateUserUI();
     }
 }
 
@@ -204,6 +214,8 @@ async function saveToLocalStorage() {
     } catch (error) {
         console.error("Failed to synchronize data with the server. Data is saved in localStorage.", error);
     }
+    updateUserUI();
+
 }
 
 function loadHomePage() {
@@ -679,8 +691,7 @@ async function login(event) {
     const password = document.getElementById("loginPassword").value;
 
     const user = users.find(user => user.email === email && user.password === password) ||
-
-    users1.find(user => user.email === email && user.password === password);
+        users1.find(user => user.email === email && user.password === password);
 
     if (!user) {
         alert("Invalid email or password!");
