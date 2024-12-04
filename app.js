@@ -2,7 +2,7 @@ let posts = [];
 let users = [];
 let currentPostIndex = 0;
 let loggedInUser = null;
-const BASE_URL = 'http://localhost:3000';
+const BASE_URL = 'https://v2-8.onrender.com';
 
    
 
