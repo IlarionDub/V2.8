@@ -11,16 +11,31 @@ let users1 = JSON.parse(localStorage.getItem("users1")) || [
 ];
 
 
-// Завантаження даних із сервера під час ініціалізації
 document.addEventListener("DOMContentLoaded", async () => {
     try {
+        const isFirstRun = localStorage.getItem("isFirstRun");
+
+        if (!isFirstRun) {
+            console.log("First launch logic executed");
+            localStorage.setItem("isFirstRun", "true");
+
+            await firstLaunchLogic();
+        } else {
+            console.log("Subsequent launch logic executed");
+
+            const savedUser = localStorage.getItem("loggedInUser");
+            if (savedUser) {
+                loggedInUser = JSON.parse(savedUser);
+                console.log("Restored logged in user:", loggedInUser);
+            }
+        }
+
         posts = (await syncFromServer('posts')) || [];
         users = (await syncFromServer('users')) || [];
 
         console.log("Posts loaded:", posts);
         console.log("Users loaded:", users);
 
-        // Виконуємо інші ініціалізації
         await setupRouter();
         loadHomePage();
         updateUserUI();
@@ -30,37 +45,45 @@ document.addEventListener("DOMContentLoaded", async () => {
     updateUserUI();
 });
 
-
-
+async function firstLaunchLogic() {
+    console.log("Executing first-launch setup...");
+    loadInitialPage();
+    await logout();
+}
 
 async function addOrUpdateData(dataType, newData) {
-    // Завантажуємо існуючі дані з локального сховища
     const existingData = JSON.parse(localStorage.getItem(dataType)) || [];
 
-    // Додаємо нові дані
     const updatedData = [...existingData, newData];
     localStorage.setItem(dataType, JSON.stringify(updatedData));
 
-    // Синхронізуємо із сервером
     await syncToServer(dataType, [newData]);
     updateUserUI();
 
 }
 async function handleCredentialResponse(response) {
-    const data = jwt_decode(response.credential); // Розшифровка JWT
-    console.log("Decoded JWT data:", data);
+    try {
+        // Декодуємо JWT, отримуємо дані
+        const data = jwt_decode(response.credential);
+        console.log("Decoded JWT data:", data);
 
+        // Зберігаємо лише ім'я в loggedInUser
+        loggedInUser = data.name;
 
+        console.log("Logged in as:", loggedInUser);
 
-    loggedInUser = {
-      name: data.name,
-        gmail: data.gmail,
-    };
+        // Оновлюємо текст на сторінці
+        const loggedInUserSpan = document.getElementById("loggedInUser");
+        if (loggedInUserSpan) {
+            loggedInUserSpan.innerText = `Logged in as: ${loggedInUser}`;
+        }
 
+        // Викликаємо оновлення UI
+        updateUserUI();
 
-    console.log("Logged in as:", loggedInUser.name);
-    document.getElementById("loggedInUser").innerText = `${loggedInUser.name}`;
-    updateUserUI();
+    } catch (error) {
+        console.error("Error handling credential response:", error);
+    }
 }
 
 function prefillAuthor() {
@@ -232,6 +255,7 @@ function loadHomePage() {
           <button onclick="window.location.hash = '#posts'">Posts</button>
           <button onclick="window.location.hash = '#register'">Register</button>
           <button onclick="window.location.hash = '#login'">Login</button>
+
         </div>
         </header>
        
@@ -242,9 +266,10 @@ function loadHomePage() {
 
 function loadInitialPage() {
     const app = document.getElementById("app");
+    updateUserUI();
 
     app.innerHTML = `
-        <h11>
+    <header class="h11">
         <h2>Welcome to the Advanced Blog!</h2>
         <p>Choose an option to get started:</p>
         <div class="button-group">
@@ -252,11 +277,14 @@ function loadInitialPage() {
           <button onclick="window.location.hash = '#posts'">Posts</button>
           <button onclick="window.location.hash = '#register'">Register</button>
           <button onclick="window.location.hash = '#login'">Login</button>
+
         </div>
-        </h11>
+        </header>
+       
     `;
 
-    updateUserUI(); // Оновити стан кнопок Login/Logout
+    updateUserUI();
+
 }
 
 
@@ -694,11 +722,16 @@ async function login(event) {
     const user = users.find(user => user.email === email && user.password === password) ||
         users1.find(user => user.email === email && user.password === password);
 
+
     if (!user) {
         alert("Invalid email or password!");
         return;
     }
     loggedInUser = user.name;
+
+    localStorage.setItem("loggedInUser", JSON.stringify(loggedInUser));
+
+
     await saveToLocalStorage();
     loadPosts();
     updateUserUI();
@@ -709,25 +742,48 @@ function updateUserUI() {
     const logoutButton = document.getElementById("logoutButton");
     const loggedInUserSpan = document.getElementById("loggedInUser");
 
-    // Перевірка, чи елемент існує
-    if (!loggedInUserSpan) {
-        console.warn("Element with ID 'loggedInUser' not found in DOM.");
-        return;
-    }
-
+    // Оновлення стану користувача
     if (loggedInUser) {
         loginButton?.classList.add("hidden");
         logoutButton?.classList.remove("hidden");
         loggedInUserSpan?.classList.remove("hidden");
-        loggedInUserSpan.innerText = `Logged in as: ${loggedInUser.name}`;
+        loggedInUserSpan.innerText = `${loggedInUser}`;
 
+        // Якщо користувач — адміністратор, додаємо кнопку "Admin Panel"
+        if (isAdmin(loggedInUser)) {
+            let adminButton = document.getElementById("adminPanelButton");
+            if (!adminButton) {
+                adminButton = document.createElement("button");
+                adminButton.id = "adminPanelButton";
+                adminButton.innerText = "Admin Panel";
+
+                // Додаємо обробник події для кнопки
+                adminButton.addEventListener("click", async () => {
+                    try {
+                        await showUserList(); // Використовуємо await для очікування завершення showUserList
+                    } catch (error) {
+                        console.error("Failed to show user list:", error);
+                    }                });
+
+                // Додаємо кнопку в header
+                document.querySelector(".header").appendChild(adminButton);
+            }
+        }
     } else {
         loginButton?.classList.remove("hidden");
         logoutButton?.classList.add("hidden");
         loggedInUserSpan?.classList.add("hidden");
-        loggedInUserSpan.innerText = "Logged in as: User";
+        loggedInUserSpan.innerText = "User";
+
+        const adminButton = document.getElementById("adminPanelButton");
+        if (adminButton) {
+            adminButton.remove();
+        }
+        // Видаляємо кнопку "Admin Panel", якщо користувач вийшов
     }
+
 }
+
 
 
 // Вихід
@@ -880,4 +936,85 @@ async function deletePost(index) {
 function isPasswordStrong(password) {
     const regex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     return regex.test(password);
+}
+
+
+
+
+
+
+
+
+async function showUserList() {
+    if (!isAdmin()) {
+        alert("Access denied. Only admins can view this page.");
+        return;
+    }
+
+    const app = document.getElementById("app");
+    app.innerHTML = `
+            <h1>Admin Panel</h1>
+            <header>
+            <nav>
+                <button onclick="window.location.hash = '#home'">Home</button>
+                <button onclick="window.location.hash = '#addPost'">Add Post</button>
+                <button onclick="window.location.hash = '#posts'">Posts</button>
+                <button onclick="window.location.hash = '#register'">Register</button>
+                ${loggedInUser ? `
+                    <button onclick="window.location.hash = '#logout'">Logout</button>
+                ` : `
+                    <button onclick="window.location.hash = '#login'">Login</button>
+                `}
+                <span id="loggedInUser" class="hidden"></span>
+            </nav>
+        </header>
+        <section class="admin-panel">
+            <h2>All Users</h2>
+            <ul id="userList">
+                ${users.map(user => `
+                    <li>
+                        Name: ${user.name}, Email: ${user.email}
+                        <button onclick="deleteUser('${user.id}')">Delete</button>
+                    </li>
+                `).join('')}
+            </ul>
+            <h2>All Posts</h2>
+            <ul id="postList">
+                ${posts.map(post => `
+                    <li>
+                        Title: ${post.title}
+                        <button onclick="deletePost('${post.id}')">Delete</button>
+                    </li>
+                `).join('')}
+            </ul>
+        </section>
+    `;
+}
+
+
+async function deleteUser(userId) {
+    if (!isAdmin()) {
+        alert("Access denied. Only admins can delete users.");
+        return;
+    }
+
+    const confirmDelete = confirm("Are you sure you want to delete this user?");
+    if (!confirmDelete) return;
+
+    try {
+        // Видалення з сервера
+        await fetch(`${BASE_URL}/users/${userId}`, {
+            method: "DELETE",
+        });
+
+        // Видалення з локального сховища
+        users = users.filter(user => user.id !== userId);
+        localStorage.setItem("users", JSON.stringify(users));
+
+        alert("User deleted successfully.");
+        await showUserList();
+    } catch (error) {
+        console.error("Failed to delete user:", error);
+        alert("An error occurred while deleting the user.");
+    }
 }
