@@ -4,7 +4,7 @@ let currentPostIndex = 0;
 let loggedInUser = null;
 const BASE_URL = 'https://v2-8.onrender.com';
 
-   
+    
 
 let users1 = JSON.parse(localStorage.getItem("users1")) || [
     { name: "Admin", email: "admin@gmail.com", password: "Admin123", role: "admin" }
