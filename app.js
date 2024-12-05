@@ -13,12 +13,6 @@ let users1 = JSON.parse(localStorage.getItem("users1")) || [
 
 document.addEventListener("DOMContentLoaded", async () => {
     try {
-        console.log("Current localStorage contents:");
-for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    const value = localStorage.getItem(key);
-    console.log(`${key}: ${value}`);
-}
         const isFirstRun = localStorage.getItem("isFirstRun");
 
         if (!isFirstRun) {
