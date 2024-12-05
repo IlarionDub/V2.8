@@ -234,7 +234,11 @@ function loadHomePage() {
           <button onclick="window.location.hash = '#addPost'">Add Post</button>
           <button onclick="window.location.hash = '#posts'">Posts</button>
           <button onclick="window.location.hash = '#register'">Register</button>
-          <button onclick="window.location.hash = '#login'">Login</button>
+               ${loggedInUser ? `
+            <button onclick="window.location.hash = '#logout'">Logout</button>
+            ` : `
+            <button onclick="window.location.hash = '#login'">Login</button>
+            `}
 
         </div>
         </header>
@@ -256,7 +260,11 @@ function loadInitialPage() {
           <button onclick="window.location.hash = '#addPost'">Add Post</button>
           <button onclick="window.location.hash = '#posts'">Posts</button>
           <button onclick="window.location.hash = '#register'">Register</button>
-          <button onclick="window.location.hash = '#login'">Login</button>
+           ${loggedInUser ? `
+            <button onclick="window.location.hash = '#logout'">Logout</button>
+            ` : `
+            <button onclick="window.location.hash = '#login'">Login</button>
+        `}
 
         </div>
         </header>
