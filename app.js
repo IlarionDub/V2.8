@@ -11,24 +11,10 @@ let users1 = JSON.parse(localStorage.getItem("users1")) || [
 ];
 
 
+
 document.addEventListener("DOMContentLoaded", async () => {
     try {
-        const isFirstRun = localStorage.getItem("isFirstRun");
 
-        if (!isFirstRun) {
-            console.log("First launch logic executed");
-            localStorage.setItem("isFirstRun", "true");
-
-            await firstLaunchLogic();
-        } else {
-            console.log("Subsequent launch logic executed");
-
-            const savedUser = localStorage.getItem("loggedInUser");
-            if (savedUser) {
-                loggedInUser = JSON.parse(savedUser);
-                console.log("Restored logged in user:", loggedInUser);
-            }
-        }
 
         posts = (await syncFromServer('posts')) || [];
         users = (await syncFromServer('users')) || [];
@@ -42,14 +28,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     } catch (error) {
         console.error("Error during initialization:", error);
     }
-    updateUserUI();
 });
-
-async function firstLaunchLogic() {
-    console.log("Executing first-launch setup...");
-    loadInitialPage();
-}
-
 
 
 async function addOrUpdateData(dataType, newData) {
