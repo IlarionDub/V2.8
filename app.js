@@ -48,8 +48,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 async function firstLaunchLogic() {
     console.log("Executing first-launch setup...");
     loadInitialPage();
-    await logout();
 }
+
+
 
 async function addOrUpdateData(dataType, newData) {
     const existingData = JSON.parse(localStorage.getItem(dataType)) || [];
