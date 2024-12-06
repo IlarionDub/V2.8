@@ -93,6 +93,7 @@ function prefillAuthor() {
 }
 
 
+
 async function syncToServer(dataType, dataArray) {
     try {
         const response = await fetch(`${BASE_URL}/${dataType}`);
@@ -155,20 +156,13 @@ async function syncToServer(dataType, dataArray) {
 }
 
 
-
 async function syncFromServer(dataType) {
     try {
         const response = await fetch(`${BASE_URL}/${dataType}`);
         const data = await response.json();
 
-        if (dataType === 'posts') {
-            for (const post of data) {
-                const commentsResponse = await fetch(`${BASE_URL}/posts/${post.id}/comments`);
-                post.comments = await commentsResponse.json();
-            }
-        }
-
         console.log(`${dataType} synced from server:`, data);
+
         localStorage.setItem(dataType, JSON.stringify(data));
         return data;
     } catch (error) {
@@ -184,6 +178,7 @@ async function syncFromServer(dataType) {
         return [];
     }
 }
+
 
 
 async function setupRouter() {
@@ -484,7 +479,7 @@ function showPost(index) {
             ` : ""}
         </div>
         <footer>
-            <p>Page ${index + 1} of ${posts.length}</p> <!-- Поточна сторінка -->
+            <p>Page ${index + 1} of ${posts.length}</p>
             <button ${index === 0 ? "disabled" : ""} onclick="showPreviousPost(); scrollToTop();">Previous</button>
             <button ${index === posts.length - 1 ? "disabled" : ""} onclick="showNextPost(); scrollToTop();">Next</button>
             <button onclick="window.location.hash = '#addPost';  scrollToTop();">Add Post</button>
@@ -593,33 +588,17 @@ async function addComment(event) {
     const author = loggedInUser || "User";
     const text = document.getElementById("commentText").value;
 
-    const comment = {
+    posts[currentPostIndex].comments.push({
         author,
         text,
         date: formatDate(new Date())
-    };
+    });
 
-    posts[currentPostIndex].comments.push(comment);
+    await saveToLocalStorage();
 
-    try {
-        const postId = posts[currentPostIndex].id; 
-        await fetch(`${BASE_URL}/posts/${postId}/comments`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(comment)
-        });
-        console.log("Comment added to server:", comment);
-
-        await saveToLocalStorage();
-        showPost(currentPostIndex);
-    } catch (error) {
-        console.error("Failed to add comment to server:", error);
-        alert("Error syncing comment with server. Saved locally.");
-    }
-
+    showPost(currentPostIndex);
     updateUserUI();
+
 }
 
 function showNextComments() {
@@ -898,23 +877,9 @@ async function deleteComment(postIndex, commentIndex) {
     }
 
     if (isAdmin() || confirm("Are you sure you want to delete this comment?")) {
-        try {
-            const postId = post.id;
-            const commentId = comment.id; // Якщо сервер повертає ID коментаря
-            await fetch(`${BASE_URL}/posts/${postId}/comments/${commentId}`, {
-                method: "DELETE",
-            });
-
-            console.log("Comment deleted from server:", comment);
-
-            // Видаляємо з локального масиву
-            post.comments.splice(commentIndex, 1);
-            await saveToLocalStorage();
-            showPost(postIndex);
-        } catch (error) {
-            console.error("Failed to delete comment from server:", error);
-            alert("Error deleting comment from server.");
-        }
+        post.comments.splice(commentIndex, 1);
+        await saveToLocalStorage();
+        showPost(postIndex);
     }
 }
 
@@ -927,29 +892,19 @@ async function deletePost(index) {
     }
 
     if (isAdmin() || confirm("Are you sure you want to delete this post?")) {
-        try {
-            await fetch(`${BASE_URL}/posts/${post.id}`, {
-                method: "DELETE",
-            });
-
-            console.log("Post deleted from server:", post);
-
-            posts.splice(index, 1);
-            await saveToLocalStorage();
-            currentPostIndex = Math.max(0, index - 1);
-            if (posts.length === 0) {
-                loadPosts();
-            } else {
-                showPost(currentPostIndex);
-            }
-        } catch (error) {
-            console.error("Failed to delete post from server:", error);
-            alert("Error deleting post from server.");
+        posts.splice(index, 1);
+        await saveToLocalStorage();
+        currentPostIndex = Math.max(0, index - 1);
+        if (posts.length === 0) {
+            loadPosts();
+        } else {
+            showPost(currentPostIndex);
         }
     }
 
     updateUserUI();
 }
+
 
 function isPasswordStrong(password) {
     const regex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
