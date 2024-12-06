@@ -161,8 +161,14 @@ async function syncFromServer(dataType) {
         const response = await fetch(`${BASE_URL}/${dataType}`);
         const data = await response.json();
 
-        console.log(`${dataType} synced from server:`, data);
+        if (dataType === 'posts') {
+            for (const post of data) {
+                const commentsResponse = await fetch(`${BASE_URL}/posts/${post.id}/comments`);
+                post.comments = await commentsResponse.json();
+            }
+        }
 
+        console.log(`${dataType} synced from server:`, data);
         localStorage.setItem(dataType, JSON.stringify(data));
         return data;
     } catch (error) {
@@ -180,10 +186,9 @@ async function syncFromServer(dataType) {
 }
 
 
-
 async function setupRouter() {
     window.addEventListener('hashchange', handleRouteChange);
-    await handleRouteChange(); 
+    await handleRouteChange();
 }
 
 async function handleRouteChange() {
@@ -588,17 +593,33 @@ async function addComment(event) {
     const author = loggedInUser || "User";
     const text = document.getElementById("commentText").value;
 
-    posts[currentPostIndex].comments.push({
+    const comment = {
         author,
         text,
         date: formatDate(new Date())
-    });
+    };
 
-    await saveToLocalStorage();
+    posts[currentPostIndex].comments.push(comment);
 
-    showPost(currentPostIndex);
+    try {
+        const postId = posts[currentPostIndex].id; 
+        await fetch(`${BASE_URL}/posts/${postId}/comments`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(comment)
+        });
+        console.log("Comment added to server:", comment);
+
+        await saveToLocalStorage();
+        showPost(currentPostIndex);
+    } catch (error) {
+        console.error("Failed to add comment to server:", error);
+        alert("Error syncing comment with server. Saved locally.");
+    }
+
     updateUserUI();
-
 }
 
 function showNextComments() {
@@ -877,9 +898,23 @@ async function deleteComment(postIndex, commentIndex) {
     }
 
     if (isAdmin() || confirm("Are you sure you want to delete this comment?")) {
-        post.comments.splice(commentIndex, 1);
-        await saveToLocalStorage();
-        showPost(postIndex);
+        try {
+            const postId = post.id;
+            const commentId = comment.id; // Якщо сервер повертає ID коментаря
+            await fetch(`${BASE_URL}/posts/${postId}/comments/${commentId}`, {
+                method: "DELETE",
+            });
+
+            console.log("Comment deleted from server:", comment);
+
+            // Видаляємо з локального масиву
+            post.comments.splice(commentIndex, 1);
+            await saveToLocalStorage();
+            showPost(postIndex);
+        } catch (error) {
+            console.error("Failed to delete comment from server:", error);
+            alert("Error deleting comment from server.");
+        }
     }
 }
 
@@ -892,19 +927,29 @@ async function deletePost(index) {
     }
 
     if (isAdmin() || confirm("Are you sure you want to delete this post?")) {
-        posts.splice(index, 1);
-        await saveToLocalStorage();
-        currentPostIndex = Math.max(0, index - 1);
-        if (posts.length === 0) {
-            loadPosts();
-        } else {
-            showPost(currentPostIndex);
+        try {
+            await fetch(`${BASE_URL}/posts/${post.id}`, {
+                method: "DELETE",
+            });
+
+            console.log("Post deleted from server:", post);
+
+            posts.splice(index, 1);
+            await saveToLocalStorage();
+            currentPostIndex = Math.max(0, index - 1);
+            if (posts.length === 0) {
+                loadPosts();
+            } else {
+                showPost(currentPostIndex);
+            }
+        } catch (error) {
+            console.error("Failed to delete post from server:", error);
+            alert("Error deleting post from server.");
         }
     }
 
     updateUserUI();
 }
-
 
 function isPasswordStrong(password) {
     const regex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
