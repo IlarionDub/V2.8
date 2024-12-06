@@ -877,9 +877,22 @@ async function deleteComment(postIndex, commentIndex) {
     }
 
     if (isAdmin() || confirm("Are you sure you want to delete this comment?")) {
-        post.comments.splice(commentIndex, 1);
-        await saveToLocalStorage();
-        showPost(postIndex);
+        try {
+            const response = await fetch(`${BASE_URL}/posts/${post.id}/comments/${comment.id}`, {
+                method: "DELETE",
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to delete comment on server");
+            }
+
+            post.comments.splice(commentIndex, 1);
+            await saveToLocalStorage();
+            showPost(postIndex);
+        } catch (error) {
+            console.error("Error deleting comment:", error);
+            alert("Failed to delete comment on server.");
+        }
     }
 }
 
@@ -892,13 +905,26 @@ async function deletePost(index) {
     }
 
     if (isAdmin() || confirm("Are you sure you want to delete this post?")) {
-        posts.splice(index, 1);
-        await saveToLocalStorage();
-        currentPostIndex = Math.max(0, index - 1);
-        if (posts.length === 0) {
-            loadPosts();
-        } else {
-            showPost(currentPostIndex);
+        try {
+            const response = await fetch(`${BASE_URL}/posts/${post.id}`, {
+                method: "DELETE",
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to delete post on server");
+            }
+
+            posts.splice(index, 1);
+            await saveToLocalStorage();
+            currentPostIndex = Math.max(0, index - 1);
+            if (posts.length === 0) {
+                loadPosts();
+            } else {
+                showPost(currentPostIndex);
+            }
+        } catch (error) {
+            console.error("Error deleting post:", error);
+            alert("Failed to delete post on server.");
         }
     }
 
