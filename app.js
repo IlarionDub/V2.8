@@ -598,30 +598,29 @@ async function addComment(event) {
     posts[currentPostIndex].comments.push(newComment);
 
     try {
-        const postId = posts[currentPostIndex].id; 
+        const postId = posts[currentPostIndex].id;
+
         if (!postId) {
-            console.error("Post ID not found.");
+            console.error("Post ID not found. Cannot add comment to server.");
             return;
         }
 
-        const response = await fetch(`${BASE_URL}/posts/${postId}/comments`, {
-            method: "POST",
+        const response = await fetch(`${BASE_URL}/posts/${postId}`, {
+            method: "PUT",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify(newComment),
+            body: JSON.stringify(posts[currentPostIndex]),
         });
 
         if (!response.ok) {
             throw new Error("Failed to save comment on the server.");
         }
 
-        console.log("Comment added successfully:", newComment);
-
         const updatedPost = await response.json();
         posts[currentPostIndex] = updatedPost;
 
-        localStorage.setItem("posts", JSON.stringify(posts));
+        await saveToLocalStorage();
     } catch (error) {
         console.error("Error adding comment:", error.message);
         alert("Failed to add comment. Please try again later.");
@@ -630,7 +629,6 @@ async function addComment(event) {
     showPost(currentPostIndex);
     updateUserUI();
 }
-
 
 function showNextComments() {
     const post = posts[currentPostIndex];
