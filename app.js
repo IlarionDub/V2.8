@@ -573,6 +573,7 @@ function formatDate(date) {
 }
 
 
+
 const ITEMS_PER_PAGE = 10;
 let currentCommentPage = 0;
 
@@ -588,18 +589,48 @@ async function addComment(event) {
     const author = loggedInUser || "User";
     const text = document.getElementById("commentText").value;
 
-    posts[currentPostIndex].comments.push({
+    const newComment = {
         author,
         text,
-        date: formatDate(new Date())
-    });
+        date: formatDate(new Date()),
+    };
 
-    await saveToLocalStorage();
+    posts[currentPostIndex].comments.push(newComment);
+
+    try {
+        const postId = posts[currentPostIndex].id; 
+        if (!postId) {
+            console.error("Post ID not found.");
+            return;
+        }
+
+        const response = await fetch(`${BASE_URL}/posts/${postId}/comments`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(newComment),
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to save comment on the server.");
+        }
+
+        console.log("Comment added successfully:", newComment);
+
+        const updatedPost = await response.json();
+        posts[currentPostIndex] = updatedPost;
+
+        localStorage.setItem("posts", JSON.stringify(posts));
+    } catch (error) {
+        console.error("Error adding comment:", error.message);
+        alert("Failed to add comment. Please try again later.");
+    }
 
     showPost(currentPostIndex);
     updateUserUI();
-
 }
+
 
 function showNextComments() {
     const post = posts[currentPostIndex];
