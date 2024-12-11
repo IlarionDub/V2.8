@@ -60,6 +60,7 @@ async function addOrUpdateData(dataType, newData) {
     updateUserUI();
 
 }
+
 async function handleCredentialResponse(response) {
     try {
         const data = jwt_decode(response.credential);
@@ -76,13 +77,14 @@ async function handleCredentialResponse(response) {
 
         localStorage.setItem("loggedInUser", JSON.stringify(loggedInUser));
         await syncToServer();
-        updateUserUI();
+        await updateUserUI();
 
     } catch (error) {
         console.error("Error handling credential response:", error);
     }
-        showPost();
+    await showPost();
 }
+
 
 function prefillAuthor() {
     const authorField = document.getElementById("author");
