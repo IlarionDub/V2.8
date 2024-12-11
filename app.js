@@ -42,26 +42,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         await setupRouter();
         await updateUserUI();
-        await startAutoRefresh();
-
     } catch (error) {
         console.error("Error during initialization:", error);
     }
 });
-
-
-async function startAutoRefresh() {
-    setInterval(async () => {
-        try {
-            console.log("Refreshing data...");
-            posts = await syncFromServer('posts');
-            users = await syncFromServer('users');
-            updateUserUI();
-        } catch (error) {
-            console.error("Failed to refresh data:", error);
-        }
-    }, 2000);
-}
 
 
 
