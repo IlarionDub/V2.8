@@ -81,6 +81,7 @@ async function handleCredentialResponse(response) {
     } catch (error) {
         console.error("Error handling credential response:", error);
     }
+        showPost();
 }
 
 function prefillAuthor() {
