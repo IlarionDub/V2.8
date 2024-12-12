@@ -424,7 +424,7 @@ right: 0.3%;
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    padding: 3% 1% 1% 10%;;
+    padding: 3% 15% 1% 20%;;
     background-color: #f4f4f9;
     color: #333;
     font-size: 90%;
@@ -467,4 +467,56 @@ right: 0.3%;
     width: 5%;
     margin-right: 2%;
     vertical-align: middle;
+}
+
+
+
+
+.left-sidebar, .right-sidebar {
+    width: 10%;
+    height: 50%;
+    background-color: #f0f0f0;
+    border-radius: 5%;
+    padding: 2%;
+    box-shadow: 0 0.5em 2em rgba(0, 0, 0, 0.1);
+    position: fixed;
+    top: 10%;
+    z-index: 100;
+    overflow-y: auto;
+}
+
+.left-sidebar {
+    left: 1%;
+}
+
+.right-sidebar {
+    right: 1%;
+}
+
+.left-sidebar h3, .right-sidebar h3 {
+    font-size: 1.5em;
+    margin-bottom: 5%;
+    text-align: center;
+    color: #333;
+}
+
+.left-sidebar ul, .right-sidebar ul {
+    list-style: none;
+    padding: 0;
+    font-size: 1.1em;
+    line-height: 1.8em;
+}
+
+.left-sidebar li, .right-sidebar li {
+    margin-bottom: 5%;
+}
+
+.left-sidebar a, .right-sidebar a {
+    text-decoration: none;
+    color: #007bff;
+    transition: color 0.2s;
+}
+
+.left-sidebar a:hover, .right-sidebar a:hover {
+    color: #0056b3;
 }
