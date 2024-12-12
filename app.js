@@ -481,7 +481,7 @@ function showPost(index) {
                 <strong>${comment.author}:</strong> ${comment.text}
                 <p><small>Commented on: ${comment.date}</small></p>
                 ${loggedInUser === comment.author || isAdmin() ? `
-                    <button onclick="deleteComment1(${index}, ${commentIndex})">Delete Comment</button>
+                    <button onclick="deleteComment(${index}, ${commentIndex})">Delete Comment</button>
                 ` : ""}
             </div>
         `).join("")}
