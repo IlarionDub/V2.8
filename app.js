@@ -13,6 +13,7 @@ let users1 = JSON.parse(localStorage.getItem("users1")) || [
 
 
 document.addEventListener("DOMContentLoaded", async () => {
+       showLoadingSpinner(); 
     try {
         const savedUser = localStorage.getItem("loggedInUser");
         let userChoice = true;
@@ -112,6 +113,7 @@ function hideLoadingSpinner() {
 
 
 async function syncToServer(dataType, dataArray) {
+        showLoadingSpinner(); 
     try {
         const response = await fetch(`${BASE_URL}/${dataType}`);
         const existingData = await response.json();
@@ -177,6 +179,7 @@ async function syncToServer(dataType, dataArray) {
 
 
 async function syncFromServer(dataType) {
+       showLoadingSpinner(); 
     try {
         const response = await fetch(`${BASE_URL}/${dataType}`);
         const data = await response.json();
