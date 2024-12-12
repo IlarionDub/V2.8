@@ -96,6 +96,18 @@ function prefillAuthor() {
 
 
 
+function showLoadingSpinner() {
+    const spinner = document.getElementById("loadingSpinner");
+    spinner.classList.remove("hidden");
+}
+
+function hideLoadingSpinner() {
+    const spinner = document.getElementById("loadingSpinner");
+    spinner.classList.add("hidden");
+}
+
+
+
 async function syncToServer(dataType, dataArray) {
     try {
         const response = await fetch(`${BASE_URL}/${dataType}`);
@@ -155,6 +167,9 @@ async function syncToServer(dataType, dataArray) {
     } catch (error) {
         console.error(`Error syncing ${dataType}:`, error);
     }
+      finally {
+        hideLoadingSpinner();
+    }
 }
 
 
@@ -178,6 +193,9 @@ async function syncFromServer(dataType) {
 
         console.warn(`No cached data available for ${dataType}.`);
         return [];
+    }
+      finally {
+        hideLoadingSpinner();
     }
 }
 
