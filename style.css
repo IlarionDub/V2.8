@@ -424,7 +424,7 @@ right: 0.3%;
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    padding: 3% 5%;
+    padding: 3% 1% 1% 10%;;
     background-color: #f4f4f9;
     color: #333;
     font-size: 90%;
@@ -434,12 +434,12 @@ right: 0.3%;
 
 .footer-column {
     width: 18%;
-    margin-bottom: 5%;
+    margin-bottom: 1%;
 }
 
 .footer-column h3 {
     font-size: 110%;
-    margin-bottom: 5%;
+    margin-bottom: 1%;
     color: #222;
 }
 
@@ -450,7 +450,7 @@ right: 0.3%;
 }
 
 .footer-column ul li {
-    margin-bottom: 5%;
+    margin-bottom: 1%;
 }
 
 .footer-column ul li a {
