@@ -933,15 +933,23 @@ async function deleteComment(postIndex, commentIndex) {
 
     if (isAdmin() || confirm("Are you sure you want to delete this comment?")) {
         try {
-            const response = await fetch(`${BASE_URL}/posts/${post.id}/comments/${comment.id}`, {
-                method: "DELETE",
+            post.comments.splice(commentIndex, 1);
+
+            const response = await fetch(`${BASE_URL}/posts/${post.id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(post),
             });
 
             if (!response.ok) {
-                throw new Error("Failed to delete comment on server");
+                throw new Error("Failed to update post on server.");
             }
 
-            post.comments.splice(commentIndex, 1);
+            const updatedPost = await response.json();
+            posts[postIndex] = updatedPost;
+
             await saveToLocalStorage();
             showPost(postIndex);
         } catch (error) {
