@@ -477,13 +477,18 @@ function showPost(index) {
         <p>No comments yet. Be the first to write one!</p>
     ` : `
         ${commentsToShow.map((comment, commentIndex) => `
-            <div class="comment">
-                <strong>${comment.author}:</strong> ${comment.text}
-                <p><small>Commented on: ${comment.date}</small></p>
-                ${loggedInUser === comment.author || isAdmin() ? `
-                    <button onclick="deleteComment(${index}, ${commentIndex})">Delete Comment</button>
-                ` : ""}
-            </div>
+        <div class="comment" style="margin-bottom: 1em;">
+    <div style="display: flex; align-items: center; gap: 0.5em;">
+        <strong>Autor: ${comment.author}</strong>
+        <span style="font-size: 0.9em; color: #555;">(${comment.date})</span>
+    </div>
+    <div style="margin-top: 0.5em;">
+        ${comment.text}
+    </div>
+    ${loggedInUser === comment.author || isAdmin() ? `
+        <button onclick="deleteComment(${index}, ${commentIndex})" style="margin-top: 0.5em;">Delete Comment</button>
+    ` : ""}
+</div>
         `).join("")}
     `}
 </div>
