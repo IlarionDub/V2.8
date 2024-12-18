@@ -504,9 +504,19 @@ function showPost(index) {
                 <button class="delete" onclick="deletePost(${index})">Delete Post</button>
             ` : ""}
         </div>
-        <footer>
+       <footer>
+        
+            <footer style="display: flex; align-items: center; justify-content: flex-start; gap: 2%; flex-wrap: wrap; padding: 1%;">
             <p>Page ${index + 1} of ${posts.length}</p>
+            <select id="postSelector" onchange="jumpToPost(this.value)">
+                ${posts.map((_, i) => `
+                <option value="${i}" ${i === index ? "selected" : ""}>Page ${i + 1}</option>
+                `).join("")}
+            </select>
+            </footer>
+            
             <button ${index === 0 ? "disabled" : ""} onclick="showPreviousPost(); scrollToTop();">Previous</button>
+        
             <button ${index === posts.length - 1 ? "disabled" : ""} onclick="showNextPost(); scrollToTop();">Next</button>
             <button onclick="window.location.hash = '#addPost';  scrollToTop();">Add Post</button>
             <button onclick="window.location.hash = '#home';scrollToTop();">Home</button>
@@ -514,6 +524,14 @@ function showPost(index) {
     `;
     updateUserUI();
 }
+
+
+function jumpToPost(index) {
+    currentPostIndex = parseInt(index);
+    showPost(currentPostIndex);
+    window.scrollTo({ top: 0, behavior: 'smooth' }); 
+}
+
 
 
 
