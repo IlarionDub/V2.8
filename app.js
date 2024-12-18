@@ -470,7 +470,7 @@ function showPost(index) {
             <h2>Title: ${post.title}</h2>
             ${post.image ? `<img src="${post.image}" alt="${post.title}">` : ""}
             <p>Description: ${post.content}</p>
-            <p><small>Posted on: ${post.date}</small></p>
+            <p><small>Posted on: (${post.date})</small></p>
           <h3>Comments</h3>
 <div id="comments">
     ${post.comments.length === 0 ? `
